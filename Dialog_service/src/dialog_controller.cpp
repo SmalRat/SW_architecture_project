@@ -2,7 +2,7 @@
 #include "../include/dialog_service.hpp"
 
 DialogController::DialogController(DialogService &service): service(service) {
-
+    setup_endpoints();
 }
 
 DialogController::~DialogController() {
@@ -74,4 +74,33 @@ void DialogController::get_session(const httplib::Request& req, httplib::Respons
     const auto &session_id = std::stoi(session_id_str);
 
     service.get_session(session_id);
+}
+
+void DialogController::setup_endpoints() {
+    server.Post(DIALOG_SERVICE_CREATE_SESSION_ENDPOINT, [this](const httplib::Request& req, httplib::Response& res) {
+        create_session(req, res);
+    });
+
+    server.Post(DIALOG_SERVICE_PUT_MESSAGE_USER_ENDPOINT, [this](const httplib::Request& req, httplib::Response& res) {
+        put_message_user(req, res);
+    });
+
+    server.Post(DIALOG_SERVICE_PUT_MESSAGE_ADMIN_ENDPOINT, [this](const httplib::Request& req, httplib::Response& res) {
+        put_message_admin(req, res);
+    });
+
+    server.Post(DIALOG_SERVICE_GET_SESSION_ENDPOINT, [this](const httplib::Request& req, httplib::Response& res) {
+        get_session(req, res);
+    });
+}
+
+void DialogController::start() {
+    std::cout << "Starting dialog service on port " << m_port << std::endl;
+    if (server.listen(DIALOG_SERVICE_HOSTNAME, m_port)){
+        std::cout << "Server stopped on port " << m_port << std::endl;
+    }
+    else {
+        std::cerr << "Failed to start dialog service on port " << m_port << std::endl;
+        throw std::runtime_error("Failed to start dialog service on port " + std::to_string(m_port)); // Todo: optimize
+    }
 }

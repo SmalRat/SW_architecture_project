@@ -3,9 +3,11 @@
 #include "../include/dialog_repository.hpp"
 
 int main(){
-    DialogRepository repository;
-    DialogService service(repository);
-    DialogController dialog_controller(service);
+    DialogRepository dialog_repository;
+    DialogService dialog_service(dialog_repository);
+    DialogController dialog_controller(dialog_service);
+
+    dialog_controller.start();
 
     return 0;
 }
