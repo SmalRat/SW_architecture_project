@@ -1,0 +1,3 @@
+[submodule "Dialog_service/libs/jsoncpp"]
+	path = Dialog_service/libs/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
