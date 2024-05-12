@@ -27,6 +27,6 @@ endif()
 
 find_package(hazelcast-cpp-client CONFIG REQUIRED)
 
-add_executable(dialog-service ./src/dialog_controller.cpp ./src/dialog_service.cpp ./src/dialog_repository.cpp ./src/main.cpp)
+add_executable(dialog-service ./src/dialog_controller.cpp ./src/dialog_service.cpp ./src/dialog_repository.cpp ./src/domain.cpp ./src/main.cpp)
 target_include_directories(dialog-service PRIVATE ./include ${JSONCPP_INCLUDE_DIRS})
 target_link_libraries(dialog-service ${JSONCPP_LIB_PATH} -pthread ${Boost_LIBRARIES} hazelcast-cpp-client::hazelcast-cpp-client)

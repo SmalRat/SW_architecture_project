@@ -15,6 +15,25 @@ const std::string DIALOG_SERVICE_HOSTNAME = "localhost";
 
 const std::string DIALOG_SERVICE_SUCCESSFULLY_CREATED_SESSION_JSON_RESPONSE = R"({"status": 0, "comment": "Session successfully created"})";
 
+enum class WEB_STATUS {
+    SUCCESS = 200,
+    BAD_REQUEST = 400,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500
+};
+
+const std::map<int, int> STATUS_MAP = { // TODO to be changed
+        {0, int(WEB_STATUS::SUCCESS)},
+        {1, int(WEB_STATUS::BAD_REQUEST)},
+        {2, int(WEB_STATUS::INTERNAL_SERVER_ERROR)}
+};
+
+namespace dialog_serializations {
+    std::string to_string (int value);
+
+    std::string to_string (const Dialog& dialog);
+}
+
 class DialogController {
 private:
     httplib::Server server;
