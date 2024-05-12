@@ -5,11 +5,12 @@ import altair as alt
 from config import get_settings
 
 from pages.stats_func.visualize_order import visualize_order
+from navigation import make_sidebar
 
+make_sidebar()
 settings = get_settings()
 
 
-st.set_page_config(page_title="Orders", page_icon="🛍️")
 orders_response = requests.get(f"{settings.backend_url_admin}/stats")
 data = orders_response.json()
 
