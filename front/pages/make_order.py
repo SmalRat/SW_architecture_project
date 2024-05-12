@@ -2,10 +2,11 @@ import streamlit as st
 from streamlit_chat import message
 import requests
 from config import get_settings
+from navigation import make_sidebar
 
+make_sidebar()
 settings = get_settings()
 
-st.set_page_config(page_title="Make Order", page_icon="🛎️")
 
 st.header("Restaurant Chat Bot")
 

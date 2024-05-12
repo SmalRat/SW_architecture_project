@@ -3,13 +3,11 @@ import requests
 
 from config import get_settings
 
+from navigation import make_sidebar
 
+make_sidebar()
 settings = get_settings()
 
-st.set_page_config(
-    page_title="Menu",
-    page_icon="👋",
-)
 
 st.write("# Welcome to our Restaurant! 👋")
 response = requests.get(f"{settings.backend_url_guest}/menu")
