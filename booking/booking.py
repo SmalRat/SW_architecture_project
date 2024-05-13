@@ -53,7 +53,7 @@ async def create_booking(booking: Booking):
 
 @app.get("/bookings/{user_name}")
 async def get_user_bookings(user_name: str):
-    bookings = bookings_collection.find({"user_id": user_name})
+    bookings = bookings_collection.find({"user_name": user_name})
     user_bookings = []
     for booking in bookings:
         booking.pop("_id", None)
