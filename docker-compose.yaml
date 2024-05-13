@@ -39,6 +39,40 @@ services:
       - "8080:8080"
     networks:
       - services-network
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+
+  mongo1:
+    image: mongo
+    container_name: mongo1
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo1-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0 
+    networks:
+      - services-network
+
+  mongo2:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo2-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
+    networks:
+      - services-network
+
+  mongo3:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo3-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
+    networks:
+      - services-network
 
   frontend:
     build: front
@@ -105,3 +139,8 @@ networks:
   services-network:
     driver: bridge
     name: services-network
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
