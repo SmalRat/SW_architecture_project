@@ -3,15 +3,15 @@
 
 #include "./common.hpp"
 #include "./domain.hpp"
-#include "./dialog_repository.hpp"
+#include "./dialog_repository_in_mem.hpp"
 
 using svc_post_response = std::pair<int, std::string>;
 
 class DialogService {
 private:
-    DialogRepository &repository;
+    DialogRepositoryInMem &repository;
 public:
-    explicit DialogService(DialogRepository &repository);
+    explicit DialogService(DialogRepositoryInMem &repository);
     ~DialogService() = default;
 
     std::tuple<int, std::string, int> create_session(); // TODO: change all of that to size_t?

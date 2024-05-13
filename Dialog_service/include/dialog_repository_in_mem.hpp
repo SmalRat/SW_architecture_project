@@ -1,18 +1,18 @@
-#ifndef DIALOG_SERVICE_DIALOG_REPOSITORY_HPP
-#define DIALOG_SERVICE_DIALOG_REPOSITORY_HPP
+#ifndef DIALOG_SERVICE_DIALOG_REPOSITORY_IN_MEM_HPP
+#define DIALOG_SERVICE_DIALOG_REPOSITORY_IN_MEM_HPP
 
 #include "./common.hpp"
 #include "domain.hpp"
 
 using repo_post_response = std::pair<int, std::string>;
 
-class DialogRepository {
+class DialogRepositoryInMem {
 private:
     std::map<int, Dialog> m_sessions;
-    std::mutex m_mutex; // Will be replaced with locking hazelcast map
+    std::mutex m_mutex;
 public:
-    DialogRepository();
-    ~DialogRepository();
+    DialogRepositoryInMem();
+    ~DialogRepositoryInMem();
 
     std::tuple<int, std::string, int> create_session();
     repo_post_response put_message(int session_id, Role role, std::string message);
@@ -22,4 +22,4 @@ public:
     void unlock_repository();
 };
 
-#endif //DIALOG_SERVICE_DIALOG_REPOSITORY_HPP
+#endif //DIALOG_SERVICE_DIALOG_REPOSITORY_IN_MEM_HPP

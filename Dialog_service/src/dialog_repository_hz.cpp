@@ -1,14 +1,14 @@
-#include "../include/dialog_repository.hpp"
+#include "dialog_repository_hz.h"
 
-DialogRepository::DialogRepository() {
-
-}
-
-DialogRepository::~DialogRepository() {
+DialogRepositoryHz::DialogRepositoryHz() {
 
 }
 
-std::tuple<int, std::string, int> DialogRepository::create_session() {
+DialogRepositoryHz::~DialogRepositoryHz() {
+
+}
+
+std::tuple<int, std::string, int> DialogRepositoryHz::create_session() {
     m_mutex.lock();
     int session_id = m_sessions.size();
     m_sessions.emplace(session_id, Dialog(session_id));
@@ -16,7 +16,7 @@ std::tuple<int, std::string, int> DialogRepository::create_session() {
     return {INTERNAL_CODES::SUCCESS, SUCCESS_COMMENT, session_id};
 }
 
-repo_post_response DialogRepository::put_message(int session_id, Role role, std::string message) {
+repo_post_response DialogRepositoryHz::put_message(int session_id, Role role, std::string message) {
     try{
         m_mutex.lock();
         m_sessions.at(session_id).messages.emplace_back(role, std::move(message));
@@ -29,7 +29,7 @@ repo_post_response DialogRepository::put_message(int session_id, Role role, std:
 
 }
 
-std::tuple<int, std::string, Dialog> DialogRepository::get_session(int session_id) {
+std::tuple<int, std::string, Dialog> DialogRepositoryHz::get_session(int session_id) {
     try{
         return {INTERNAL_CODES::SUCCESS, SUCCESS_COMMENT, m_sessions.at(session_id)};
     }
@@ -39,10 +39,10 @@ std::tuple<int, std::string, Dialog> DialogRepository::get_session(int session_i
     }
 }
 
-void DialogRepository::lock_repository() {
+void DialogRepositoryHz::lock_repository() {
     m_mutex.lock();
 }
 
-void DialogRepository::unlock_repository() {
+void DialogRepositoryHz::unlock_repository() {
     m_mutex.unlock();
 }

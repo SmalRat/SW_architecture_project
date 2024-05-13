@@ -18,6 +18,6 @@ std::tuple<int, std::string, Dialog> DialogService::get_session(int session_id) 
     return repository.get_session(session_id);
 }
 
-DialogService::DialogService(DialogRepository &repository): repository(repository) {
+DialogService::DialogService(DialogRepositoryInMem &repository): repository(repository) {
 
 }

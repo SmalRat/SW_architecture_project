@@ -58,7 +58,7 @@ void respond_get(const httplib::Request& req, httplib::Response& res, Func given
         const auto &comment = std::get<1>(result);
         auto data = std::get<2>(result);
 
-        response_json["status"] = STATUS_MAP.at(status);
+        res.status = STATUS_MAP.at(status);
         response_json["comment"] = comment;
         response_json[data_field] = dialog_serializations::to_string(data);
 
@@ -67,7 +67,7 @@ void respond_get(const httplib::Request& req, httplib::Response& res, Func given
     catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
 
-        response_json["status"] = int(WEB_STATUS::INTERNAL_SERVER_ERROR);
+        res.status = int(WEB_STATUS::INTERNAL_SERVER_ERROR);
         response_json["comment"] = e.what();
         response_json[data_field] = alternative;
 
@@ -85,7 +85,7 @@ void respond_post(const httplib::Request& req, httplib::Response& res, Func give
         const auto &status = std::get<0>(result);
         const auto &comment = std::get<1>(result);
 
-        response_json["status"] = STATUS_MAP.at(status);
+        res.status = STATUS_MAP.at(status);
         response_json["comment"] = comment;
 
         response_str = Json::writeString(Json::StreamWriterBuilder(), response_json);
@@ -93,7 +93,7 @@ void respond_post(const httplib::Request& req, httplib::Response& res, Func give
     catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
 
-        response_json["status"] = int(WEB_STATUS::INTERNAL_SERVER_ERROR);
+        res.status = int(WEB_STATUS::INTERNAL_SERVER_ERROR);
         response_json["comment"] = e.what();
 
         response_str = Json::writeString(Json::StreamWriterBuilder(), response_json);

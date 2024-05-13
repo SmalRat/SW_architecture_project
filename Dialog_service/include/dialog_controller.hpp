@@ -29,9 +29,9 @@ const std::map<int, int> STATUS_MAP = { // TODO to be changed
 };
 
 namespace dialog_serializations {
-    std::string to_string (int value);
+    std::string to_string(int value);
 
-    std::string to_string (const Dialog& dialog);
+    std::string to_string(const Dialog& dialog);
 }
 
 class DialogController {

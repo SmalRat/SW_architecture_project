@@ -1,8 +1,5 @@
-from fastapi import FastAPI
+import support.src.models
+import support.src.service
+import support.src.route
+import support.src.utils
 
-app = FastAPI(title="Support")
-
-
-@app.get("/", tags=["main page"])
-async def root():
-    return "Support"
