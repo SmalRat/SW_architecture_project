@@ -2,24 +2,24 @@ from typing import List
 
 from fastapi import APIRouter
 
-from support.src.utils import SupportRepository
-import support.src.common
+from support.src.utils import SupportRepository, client
 
 repo = SupportRepository()
 
 class SupportService:
-    @staticmethod
-    def create_session():
+    def __init__(self):
+        mq_name = "mq"
+        self.messaging_queue = client.get_queue(mq_name).blocking()
+
+    def create_session(self):
         return repo.create_session()
 
-    @staticmethod
-    def put_message_user(session_id, message):
+    def put_message_user(self, session_id, message):
+        self.messaging_queue.put(session_id)
         return repo.put_message(session_id, "User", message)
 
-    @staticmethod
-    def put_message_admin(session_id, message):
+    def put_message_admin(self, session_id, message):
         return repo.put_message(session_id, "Admin", message)
 
-    @staticmethod
-    def get_session(session_id):
-        return repo.get_session(session_id)
+    def get_session(self, session_id):
+        return self.messaging_queue.take() #repo.get_session(session_id)
