@@ -27,7 +27,6 @@ if orders_response:
             value=f'${round(data["average_order_price"] if data["average_order_price"] else 0, 2):0.2f}',
         )
 
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -59,7 +58,6 @@ if orders_response:
         st.header("Items Stats")
         st.altair_chart(bar_chart)
 
-
     st.title("Completed Orders:")
     orders_response = requests.get(f"{settings.backend_url_admin}/orders")
     data = orders_response.json()
@@ -70,4 +68,3 @@ if orders_response:
         st.write("# There is no completed orders")
 else:
     st.write("# There is no completed orders")
-

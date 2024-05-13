@@ -35,7 +35,9 @@ def make_sidebar():
             st.page_link("pages/menu.py", label="Menu", icon="📒")
             st.page_link("pages/make_order.py", label="Make order", icon="🛒")
             st.page_link("pages/reserve_table.py", label="Reserve table", icon="🛎️")
-            st.page_link("pages/client_chat.py", label="Connect with a worker", icon="📤")
+            st.page_link(
+                "pages/client_chat.py", label="Connect with a worker", icon="📤"
+            )
 
             st.page_link("pages/admin.py", label="Admin", icon="🔒")
 
