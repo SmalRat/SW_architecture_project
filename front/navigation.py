@@ -23,6 +23,7 @@ def make_sidebar():
         if st.session_state.get("logged_in", False):
             st.page_link("pages/change_menu.py", label="Change menu", icon="📒")
             st.page_link("pages/stats.py", label="Statistics", icon="📊")
+            st.page_link("pages/reservation_admin.py", label="Reservations", icon="🛎️")
             st.page_link("pages/admin_chat.py", label="Client's chat", icon="📤")
 
             st.write("")
@@ -34,7 +35,9 @@ def make_sidebar():
             st.page_link("pages/menu.py", label="Menu", icon="📒")
             st.page_link("pages/make_order.py", label="Make order", icon="🛒")
             st.page_link("pages/reserve_table.py", label="Reserve table", icon="🛎️")
-            st.page_link("pages/client_chat.py", label="Connect with a worker", icon="📤")
+            st.page_link(
+                "pages/client_chat.py", label="Connect with a worker", icon="📤"
+            )
 
             st.page_link("pages/admin.py", label="Admin", icon="🔒")
 
