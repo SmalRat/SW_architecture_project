@@ -3,7 +3,7 @@ version: '3.8'
 x-hz-common-settings: &hz-common-settings
   image: hazelcast/hazelcast:latest
   networks:
-    - hazelcast-network
+    - hazelcast-network-0
 
 x-common-env: &hz-common-env
   HZ_CLUSTERNAME: dev
@@ -65,6 +65,7 @@ services:
       - hazel-node-mq
     networks:
       - services-network
+      - hazelcast-network-0
 
   hazel-node-1:
     <<: *hz-common-settings
@@ -97,9 +98,9 @@ services:
 
 
 networks:
-  hazelcast-network:
+  hazelcast-network-0:
     driver: bridge
-    name: hazelcast-network
+    name: hazelcast-network-0
 
   services-network:
     driver: bridge
