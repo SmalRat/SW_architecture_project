@@ -56,6 +56,7 @@ services:
       - hazel-node-mq
     networks:
       - services-network
+      - hazelcast-network-0
 
   hazel-node-1:
     <<: *hz-common-settings
