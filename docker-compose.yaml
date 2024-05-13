@@ -40,6 +40,35 @@ services:
     networks:
       - services-network
 
+  mongo1:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo1-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
+    networks:
+      - services-network
+
+  mongo2:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo2-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
+    networks:
+      - services-network
+
+  mongo3:
+    image: mongo
+    restart: always
+    volumes:
+      - mongo3-data:/data/db
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
+    networks:
+      - services-network
+
   frontend:
     build: front
     ports:
@@ -104,3 +133,8 @@ networks:
   services-network:
     driver: bridge
     name: services-network
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:

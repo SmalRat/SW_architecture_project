@@ -7,7 +7,7 @@ import datetime
 app = FastAPI()
 
 # MongoDB connection
-client = MongoClient("mongodb://134.122.73.228:27017/?directConnection=true&appName=mongosh+1.3.1")
+client = MongoClient("mongodb://mongo1:27017/?directConnection=true&appName=mongosh+1.3.1")
 db = client["restaurant_booking"]
 bookings_collection = db["bookings"]
 
