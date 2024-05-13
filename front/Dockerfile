@@ -10,4 +10,4 @@ COPY . /code/front
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "menu.py"]
+CMD ["streamlit", "run", "main.py"]
