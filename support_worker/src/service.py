@@ -1,25 +1,12 @@
-from typing import List
+from support_worker.src.common import connect_to_hz
 
-from fastapi import APIRouter
+client = connect_to_hz()
 
-from support.src.utils import SupportRepository
-import support.src.common
 
-repo = SupportRepository()
+class SupportWorkerService:
+    def __init__(self):
+        mq_name = "mq"
+        self.messaging_queue = client.get_queue(mq_name).blocking()
 
-class SupportService:
-    @staticmethod
-    def create_session():
-        return repo.create_session()
-
-    @staticmethod
-    def put_message_user(session_id, message):
-        return repo.put_message(session_id, "User", message)
-
-    @staticmethod
-    def put_message_admin(session_id, message):
-        return repo.put_message(session_id, "Admin", message)
-
-    @staticmethod
-    def get_session(session_id):
-        return repo.get_session(session_id)
+    def deque_session(self):
+        return self.messaging_queue.take()

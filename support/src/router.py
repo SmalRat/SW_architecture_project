@@ -1,5 +1,3 @@
-from typing import List
-from fastapi import FastAPI
 from fastapi import APIRouter
 
 from support.src.service import SupportService
@@ -12,6 +10,7 @@ SUPPORT_SERVICE_HOSTNAME = "localhost"
 
 support = APIRouter(prefix="")
 svc = SupportService()
+
 
 @support.get("/", tags=["main page"])
 async def root():
@@ -36,4 +35,3 @@ def put_message_admin(session_id: int, message: str):
 @support.get(SUPPORT_SERVICE_GET_SESSION_ENDPOINT)
 def get_session(session_id: int):
     return svc.get_session(session_id)
-
