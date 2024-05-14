@@ -85,10 +85,13 @@ services:
     networks:
       - services-network
 
-  support:
+  support1:
     build: support
     environment:
       - PYTHONUNBUFFERED=0
+      - MY_PORT=81
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
+      - CONTAINER_NAME=support1
     volumes:
       - ./support:/code/support
     ports:
@@ -97,9 +100,110 @@ services:
       - hazel-node-1
       - hazel-node-2
       - hazel-node-mq
+      - consul
     networks:
       - services-network
       - hazelcast-network-0
+
+  support2:
+    build: support
+    environment:
+      - PYTHONUNBUFFERED=0
+      - MY_PORT=82
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
+      - CONTAINER_NAME=support2
+    volumes:
+      - ./support:/code/support
+    ports:
+      - "82:80"
+    depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+
+  support-worker1:
+    build: support-worker
+    environment:
+      - PYTHONUNBUFFERED=0
+      - MY_PORT=91
+      - CONTAINER_NAME=support-worker1
+    volumes:
+      - ./support-worker:/code/support-worker
+    ports:
+      - "91:80"
+    depends_on:
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+
+  support-worker2:
+    build: support-worker
+    environment:
+      - PYTHONUNBUFFERED=0
+      - MY_PORT=92
+      - CONTAINER_NAME=support-worker2
+    volumes:
+      - ./support-worker:/code/support-worker
+    ports:
+      - "92:80"
+    depends_on:
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+#  support3:
+#      build: support
+#      environment:
+#        - PYTHONUNBUFFERED=0
+#        - MY_PORT=83
+#        - HZ_NETWORK_PUBLICADDRESS=hazel-node-3:5703
+#        - CONTAINER_NAME=support3
+#      volumes:
+#        - ./support:/code/support
+#      ports:
+#        - "83:80"
+#      depends_on:
+#        - hazel-node-1
+#        - hazel-node-2
+#        - hazel-node-mq
+#      networks:
+#        - services-network
+#        - hazelcast-network-0
+
+  gateway:
+    build: gateway
+    environment:
+      - PYTHONUNBUFFERED=0
+      - MY_PORT=85
+      - CONTAINER_NAME=gateway
+    volumes:
+      - ./gateway:/code/gateway
+    ports:
+      - "85:80"
+    depends_on:
+      - consul
+    networks:
+      - services-network
+
+  consul:
+    image: consul:1.15.4
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    networks:
+      - services-network
+    command: consul agent -dev -client=0.0.0.0
+
 
   hazel-node-1:
     <<: *hz-common-settings
@@ -118,6 +222,15 @@ services:
         HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5702"
       ports:
         - "5702:5701"
+
+#  hazel-node-3:
+#      <<: *hz-common-settings
+#      container_name: hazel-node-3
+#      environment:
+#        <<: *hz-common-env
+#        HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5709"
+#      ports:
+#        - "5709:5701"
 
   hazel-node-mq:
     image: hazelcast/hazelcast:latest
