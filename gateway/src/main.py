@@ -2,17 +2,21 @@ from fastapi import FastAPI, HTTPException
 import httpx
 import consul
 import random
+import os
 
 app = FastAPI()
-c = consul.Consul()
+c = consul.Consul(
+    host=os.getenv("CONSUL_HOST", "consul"),
+    port=int(os.getenv("CONSUL_PORT", "8500")),
+)
 
 def get_service_url(service_name: str) -> str:
     index, services = c.health.service(service_name, passing=True)
-    print(services)
+    # print(services)
     if not services:
         raise HTTPException(status_code=404, detail=f"Service {service_name} not found")
     random_service = random.choice(services)
-    print(random_service)
+    # print(random_service)
     return f"http://{random_service['ServiceAddress']}:{random_service['ServicePort']}"
 
 @app.post("/deque_request")
@@ -25,6 +29,7 @@ async def deque_request():
 @app.post("/create_session")
 async def create_session():
     url = get_service_url("support-service") + "/create_session"
+
     async with httpx.AsyncClient() as client:
         response = await client.post(url)
         return response.json()

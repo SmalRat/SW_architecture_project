@@ -92,6 +92,8 @@ services:
       - MY_PORT=81
       - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
       - CONTAINER_NAME=support1
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     volumes:
       - ./support:/code/support
     ports:
@@ -112,6 +114,8 @@ services:
       - MY_PORT=82
       - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
       - CONTAINER_NAME=support2
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     volumes:
       - ./support:/code/support
     ports:
@@ -126,14 +130,16 @@ services:
       - hazelcast-network-0
 
 
-  support-worker1:
-    build: support-worker
+  worker1:
+    build: worker
     environment:
       - PYTHONUNBUFFERED=0
       - MY_PORT=91
-      - CONTAINER_NAME=support-worker1
+      - CONTAINER_NAME=worker1
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     volumes:
-      - ./support-worker:/code/support-worker
+      - ./worker:/code/worker
     ports:
       - "91:80"
     depends_on:
@@ -144,14 +150,16 @@ services:
       - hazelcast-network-0
 
 
-  support-worker2:
-    build: support-worker
+  worker2:
+    build: worker
     environment:
       - PYTHONUNBUFFERED=0
       - MY_PORT=92
-      - CONTAINER_NAME=support-worker2
+      - CONTAINER_NAME=worker2
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     volumes:
-      - ./support-worker:/code/support-worker
+      - ./worker:/code/worker
     ports:
       - "92:80"
     depends_on:
@@ -186,6 +194,8 @@ services:
       - PYTHONUNBUFFERED=0
       - MY_PORT=85
       - CONTAINER_NAME=gateway
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
     volumes:
       - ./gateway:/code/gateway
     ports:
