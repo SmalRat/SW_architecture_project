@@ -5,7 +5,7 @@ x-hz-common-settings: &hz-common-settings
   networks:
     - hazelcast-network-0
 
-x-common-env: &hz-common-env
+x-hz-common-env: &hz-common-env
   HZ_CLUSTERNAME: dev
 
 services:
@@ -61,13 +61,16 @@ services:
       - "27017:27017"
     volumes:
       - mongo1-data:/data/db
-    command: mongod --replSet rs0 --bind_ip 0.0.0.0 
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0
     networks:
       - services-network
 
   mongo2:
     image: mongo
+    container_name: mongo2
     restart: always
+    ports:
+      - "27018:27017"
     volumes:
       - mongo2-data:/data/db
     command: mongod --replSet rs0 --bind_ip 0.0.0.0
@@ -76,7 +79,10 @@ services:
 
   mongo3:
     image: mongo
+    container_name: mongo3
     restart: always
+    ports:
+      - "27019:27017"
     volumes:
       - mongo3-data:/data/db
     command: mongod --replSet rs0 --bind_ip 0.0.0.0
@@ -100,6 +106,7 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
     volumes:
       - ./support:/code/support
     ports:
@@ -107,6 +114,7 @@ services:
     depends_on:
       - hazel-node-1
       - hazel-node-2
+      - hazel-node-3
       - hazel-node-mq
       - consul
     networks:
@@ -119,6 +127,7 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-2:5701
     volumes:
       - ./support:/code/support
     ports:
@@ -126,12 +135,33 @@ services:
     depends_on:
       - hazel-node-1
       - hazel-node-2
+      - hazel-node-3
       - hazel-node-mq
       - consul
     networks:
       - services-network
       - hazelcast-network-0
 
+  support3:
+    build: support
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-3:5701
+    volumes:
+      - ./support:/code/support
+    ports:
+      - "83:${SUPPORT_SERVICE_INTERNAL_PORT}"
+    depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-3
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
 
   worker1:
     build: worker
@@ -139,17 +169,20 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
     volumes:
       - ./worker:/code/worker
     ports:
       - "91:${WORKER_SERVICE_INTERNAL_PORT}"
     depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-3
       - hazel-node-mq
       - consul
     networks:
       - services-network
       - hazelcast-network-0
-
 
   worker2:
     build: worker
@@ -157,11 +190,36 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-2:5701
     volumes:
       - ./worker:/code/worker
     ports:
       - "92:${WORKER_SERVICE_INTERNAL_PORT}"
     depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-3
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+  worker3:
+    build: worker
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
+      - HZ_NETWORK_PUBLICADDRESS=hazel-node-3:5701
+    volumes:
+      - ./worker:/code/worker
+    ports:
+      - "93:${WORKER_SERVICE_INTERNAL_PORT}"
+    depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-3
       - hazel-node-mq
       - consul
     networks:
@@ -192,7 +250,6 @@ services:
       - services-network
     command: consul agent -dev -client=0.0.0.0
 
-
   hazel-node-1:
     <<: *hz-common-settings
     container_name: hazel-node-1
@@ -201,36 +258,41 @@ services:
       HZ_NETWORK_PUBLICADDRESS: "hazel-node-1:5701"
     ports:
       - "5701:5701"
+    networks:
+      - hazelcast-network-0
 
   hazel-node-2:
-      <<: *hz-common-settings
-      container_name: hazel-node-2
-      environment:
-        <<: *hz-common-env
-        HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5702"
-      ports:
-        - "5702:5701"
+    <<: *hz-common-settings
+    container_name: hazel-node-2
+    environment:
+      <<: *hz-common-env
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5701"
+    ports:
+      - "5702:5701"
+    networks:
+      - hazelcast-network-0
 
-#  hazel-node-3:
-#      <<: *hz-common-settings
-#      container_name: hazel-node-3
-#      environment:
-#        <<: *hz-common-env
-#        HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5709"
-#      ports:
-#        - "5709:5701"
+  hazel-node-3:
+    <<: *hz-common-settings
+    container_name: hazel-node-3
+    environment:
+      <<: *hz-common-env
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5701"
+    ports:
+      - "5703:5701"
+    networks:
+      - hazelcast-network-0
 
   hazel-node-mq:
-    image: hazelcast/hazelcast:latest
+    <<: *hz-common-settings
     container_name: hazel-node-mq
-    networks:
-      - services-network
     environment:
       HZ_CLUSTERNAME: mq
       HZ_NETWORK_PUBLICADDRESS: "hazel-node-mq:5704"
     ports:
       - "5704:5701"
-
+    networks:
+      - services-network
 
 networks:
   hazelcast-network-0:

@@ -31,4 +31,4 @@ def get_menu():
 
         st.table(formatted_menu_data)
     else:
-        st.error("Failed to retrieve menu.")
+        st.error("Service is temporarily unavailable")

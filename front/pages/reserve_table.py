@@ -14,7 +14,9 @@ all_times = set(i for i in range(8, 23))
 
 def fetch_tables():
     response = requests.get(f"{settings.reservation_url}/tables")
-
+    if response.status_code == 404:
+        st.error("booking service is temporarily unavailable!")
+        return None
     tables = response.json()
     return tables
 
@@ -34,18 +36,6 @@ def reserve_table(table_id, time, user):
 
     return response.status_code == 200
 
-
-tables_resp = fetch_tables()
-
-if "tables" not in st.session_state:
-    st.session_state["tables"] = {table["_id"]: False for table in tables_resp}
-tables_length = len(tables_resp)
-if tables_length != len(st.session_state["tables"]):
-    for table in tables_resp:
-        if not st.session_state["tables"].get(table["_id"]):
-            st.session_state["tables"][table["_id"]] = False
-
-tables = st.session_state["tables"]
 
 
 def on_advanced_button_click(buttons: dict[str, bool], id: str) -> None:
@@ -84,14 +74,14 @@ def display_tables(tables_resp, tables):
                 if "form_submitted" not in st.session_state:
                     st.session_state.form_submitted = False
 
-                idx = 0
+                idx_time = 0
                 for time in available_times:
-                    row = idx // cols_per_row
-                    col = idx % cols_per_row
-                    if grid[row][col].button(time, key=time, use_container_width=True):
+                    row = idx_time // cols_per_row
+                    col = idx_time % cols_per_row
+                    if grid[row][col].button(time, key=f"{idx}_{time}", use_container_width=True):
                         st.session_state.selected_time = time
                         st.session_state.form_submitted = False
-                    idx += 1
+                    idx_time += 1
 
                 if (
                     st.session_state.selected_time
@@ -132,4 +122,17 @@ def display_tables(tables_resp, tables):
             )
 
 
-display_tables(tables_resp, tables)
+tables_resp = fetch_tables()
+
+if tables_resp:
+    if "tables" not in st.session_state:
+        st.session_state["tables"] = {table["_id"]: False for table in tables_resp}
+    tables_length = len(tables_resp)
+    if tables_length != len(st.session_state["tables"]):
+        for table in tables_resp:
+            if not st.session_state["tables"].get(table["_id"]):
+                st.session_state["tables"][table["_id"]] = False
+
+    tables = st.session_state["tables"]
+
+    display_tables(tables_resp, tables)
