@@ -12,7 +12,7 @@ settings = get_settings()
 
 
 orders_response = requests.get(f"{settings.backend_url_admin}/stats")
-if orders_response:
+if orders_response.status_code != 404:
     data = orders_response.json()
     col1, col2, col3 = st.columns(3)
 
@@ -67,4 +67,4 @@ if orders_response:
     else:
         st.write("# There is no completed orders")
 else:
-    st.write("# There is no completed orders")
+    st.error("Service is temporarily unavailable")

@@ -10,6 +10,9 @@ settings = get_settings()
 
 response = requests.get(f"{settings.reservation_url}/bookings")
 
-bookings = response.json()
+if response.status_code != 404:
+    bookings = response.json()
 
-st.table(bookings)
+    st.table(bookings)
+else:
+    st.error("Service is temporarily unavailable")

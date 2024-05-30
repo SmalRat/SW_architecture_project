@@ -19,7 +19,8 @@ def add_item():
         response = requests.post(
             f"{settings.backend_url_admin}/add_menu_item", json=item.dict()
         )
+
         if response.status_code == 200:
             st.success("Menu item added successfully!")
         else:
-            st.error("Failed to add menu item.")
+            st.error("Service is temporarily unavailable")

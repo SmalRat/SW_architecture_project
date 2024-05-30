@@ -18,4 +18,4 @@ def change_stock():
         if response.status_code == 200:
             st.success("Stock updated successfully!")
         else:
-            st.error("Failed to update stock.")
+            st.error("Service is temporarily unavailable")
