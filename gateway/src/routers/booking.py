@@ -15,6 +15,8 @@ async def create_booking(booking: Booking):
             return response.json()
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except httpx.ReadTimeout as e:
+        raise HTTPException(status_code=504, detail="Upstream service timed out")
 
 @booking.get("/bookings/{user_name}")
 async def get_user_bookings(user_name: str):
@@ -26,6 +28,8 @@ async def get_user_bookings(user_name: str):
             return response.json()
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except httpx.ReadTimeout as e:
+        raise HTTPException(status_code=504, detail="Upstream service timed out")
 
 @booking.get("/bookings/")
 async def get_all_bookings():
@@ -37,6 +41,8 @@ async def get_all_bookings():
             return response.json()
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except httpx.ReadTimeout as e:
+        raise HTTPException(status_code=504, detail="Upstream service timed out")
 
 @booking.get("/tables/")
 async def get_all_tables():
@@ -48,6 +54,8 @@ async def get_all_tables():
             return response.json()
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except httpx.ReadTimeout as e:
+        raise HTTPException(status_code=504, detail="Upstream service timed out")
 
 @booking.get("/tables/{table}")
 async def get_table(table: int):
@@ -59,3 +67,6 @@ async def get_table(table: int):
             return response.json()
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except httpx.ReadTimeout as e:
+        raise HTTPException(status_code=504, detail="Upstream service timed out")
+
