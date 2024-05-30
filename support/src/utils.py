@@ -1,13 +1,16 @@
 from support.src.models import Dialog, Message
 from support.src.common import connect_to_hz
 
-client = connect_to_hz()
+mq_name = "mq"
+
+client_maps = connect_to_hz("dev", "MAPS_HZ_NETWORK_ADDRESS")
+client_mq = connect_to_hz(mq_name, "MQ_HZ_NETWORK_ADDRESS")
 
 
 class SupportRepository:
     def __init__(self):
         hazel_mapname = "hz_mapname"
-        self.distributed_map = client.get_map(hazel_mapname).blocking()
+        self.distributed_map = client_maps.get_map(hazel_mapname).blocking()
 
     def create_session(self):
         new_id = self.distributed_map.size()

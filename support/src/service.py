@@ -1,11 +1,11 @@
-from support.src.utils import SupportRepository, client
+from support.src.utils import SupportRepository, client_mq
 
 QUEUE_NAME = "mq"
 
 
 class SupportService:
     def __init__(self):
-        self.messaging_queue = client.get_queue(QUEUE_NAME).blocking()
+        self.messaging_queue = client_mq.get_queue(QUEUE_NAME).blocking()
         self.repository = SupportRepository()
 
     def create_session(self):

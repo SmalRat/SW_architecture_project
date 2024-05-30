@@ -106,7 +106,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-1:5701
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./support:/code/support
     ports:
@@ -127,7 +128,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-2:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-2:5702
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./support:/code/support
     ports:
@@ -148,7 +150,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-3:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-3:5703
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./support:/code/support
     ports:
@@ -169,7 +172,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-1:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-1:5701
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./worker:/code/worker
     ports:
@@ -190,7 +194,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-2:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-2:5702
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./worker:/code/worker
     ports:
@@ -211,7 +216,8 @@ services:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_PORT}
       - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
-      - HZ_NETWORK_PUBLICADDRESS=hazel-node-3:5701
+      - MAPS_HZ_NETWORK_ADDRESS=hazel-node-3:5703
+      - MQ_HZ_NETWORK_ADDRESS=hazel-node-mq:5704
     volumes:
       - ./worker:/code/worker
     ports:
@@ -266,7 +272,7 @@ services:
     container_name: hazel-node-2
     environment:
       <<: *hz-common-env
-      HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5701"
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5702"
     ports:
       - "5702:5701"
     networks:
@@ -277,7 +283,7 @@ services:
     container_name: hazel-node-3
     environment:
       <<: *hz-common-env
-      HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5701"
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5703"
     ports:
       - "5703:5701"
     networks:
