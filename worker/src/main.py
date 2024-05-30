@@ -19,6 +19,7 @@ async def root():
 
 @app.get(SUPPORT_WORKER_SERVICE_GET_NEW_SESSION)
 def controller_deque_session():
+    print("*"*100)
     return svc.deque_session()
 
 @app.on_event("startup")
