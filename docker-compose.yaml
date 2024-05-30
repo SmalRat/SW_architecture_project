@@ -172,14 +172,12 @@ services:
     build: gateway
     environment:
       - PYTHONUNBUFFERED=0
-      - MY_PORT=85
-      - CONTAINER_NAME=gateway
       - CONSUL_HOST=consul
       - CONSUL_PORT=8500
     volumes:
       - ./gateway:/code/gateway
     ports:
-      - "85:80"
+      - "85:${GATEWAY_SERVICE_INTERNAL_PORT}"
     depends_on:
       - consul
     networks:

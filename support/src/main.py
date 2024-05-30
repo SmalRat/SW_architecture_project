@@ -24,13 +24,13 @@ async def startup_event():
     )
 
     service_name = "support"
-    service_port = int(os.getenv("SUPPORT_SERVICE_INTERNAL_PORT", "8080"))
+    service_port = int(os.getenv("SUPPORT_SERVICE_INTERNAL_PORT", "80"))
     service_id = f"{service_name}-{socket.gethostname()}"
 
     c.agent.service.register(
         name=service_name,
         service_id=service_id,
-        address=socket.gethostbyname(socket.gethostname()),
+        address=socket.gethostname(),
         port=service_port,
         check={
             "http": f"http://{socket.gethostname()}:{service_port}/health",
