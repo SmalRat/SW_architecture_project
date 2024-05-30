@@ -1,4 +1,4 @@
-from support_worker.src.common import connect_to_hz
+from worker.src.common import connect_to_hz
 
 client = connect_to_hz()
 

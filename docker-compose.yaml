@@ -22,12 +22,16 @@ services:
     build: app
     environment:
       - PYTHONUNBUFFERED=0
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - APP_SERVICE_INTERNAL_PORT=${APP_SERVICE_INTERNAL_PORT}
     volumes:
       - ./app:/code/app
     ports:
-      - "80:80"
+      - "80:${APP_SERVICE_INTERNAL_PORT}"
     depends_on:
       - db
+      - consul
     networks:
       - services-network
 
@@ -36,13 +40,18 @@ services:
     volumes:
       - ./booking:/code/booking
     ports:
-      - "8080:8080"
+      - "8080:${BOOKING_SERVICE_INTERNAL_PORT}"
     networks:
       - services-network
     depends_on:
       - mongo1
       - mongo2
       - mongo3
+      - consul
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - BOOKING_SERVICE_INTERNAL_PORT=${BOOKING_SERVICE_INTERNAL_PORT}
 
   mongo1:
     image: mongo
@@ -85,21 +94,106 @@ services:
     networks:
       - services-network
 
-  support:
+  support1:
     build: support
     environment:
-      - PYTHONUNBUFFERED=0
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
     volumes:
       - ./support:/code/support
     ports:
-      - "81:80"
+      - "81:${SUPPORT_SERVICE_INTERNAL_PORT}"
     depends_on:
       - hazel-node-1
       - hazel-node-2
       - hazel-node-mq
+      - consul
     networks:
       - services-network
       - hazelcast-network-0
+
+  support2:
+    build: support
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - SUPPORT_SERVICE_INTERNAL_PORT=${SUPPORT_SERVICE_INTERNAL_PORT}
+    volumes:
+      - ./support:/code/support
+    ports:
+      - "82:${SUPPORT_SERVICE_INTERNAL_PORT}"
+    depends_on:
+      - hazel-node-1
+      - hazel-node-2
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+
+  worker1:
+    build: worker
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
+    volumes:
+      - ./worker:/code/worker
+    ports:
+      - "91:${WORKER_SERVICE_INTERNAL_PORT}"
+    depends_on:
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+
+  worker2:
+    build: worker
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_PORT}
+      - WORKER_SERVICE_INTERNAL_PORT=${WORKER_SERVICE_INTERNAL_PORT}
+    volumes:
+      - ./worker:/code/worker
+    ports:
+      - "92:${WORKER_SERVICE_INTERNAL_PORT}"
+    depends_on:
+      - hazel-node-mq
+      - consul
+    networks:
+      - services-network
+      - hazelcast-network-0
+
+  gateway:
+    build: gateway
+    environment:
+      - PYTHONUNBUFFERED=0
+      - MY_PORT=85
+      - CONTAINER_NAME=gateway
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    volumes:
+      - ./gateway:/code/gateway
+    ports:
+      - "85:80"
+    depends_on:
+      - consul
+    networks:
+      - services-network
+
+  consul:
+    image: consul:1.15.4
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    networks:
+      - services-network
+    command: consul agent -dev -client=0.0.0.0
+
 
   hazel-node-1:
     <<: *hz-common-settings
@@ -118,6 +212,15 @@ services:
         HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5702"
       ports:
         - "5702:5701"
+
+#  hazel-node-3:
+#      <<: *hz-common-settings
+#      container_name: hazel-node-3
+#      environment:
+#        <<: *hz-common-env
+#        HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5709"
+#      ports:
+#        - "5709:5701"
 
   hazel-node-mq:
     image: hazelcast/hazelcast:latest

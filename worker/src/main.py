@@ -1,16 +1,25 @@
 from fastapi import FastAPI
-from app.src.admin.router import admin
-from app.src.guest.router import guest
+from worker.src.service import SupportWorkerService
 import consul
 import os
-import socket
 import logging
+import socket
 
-app = FastAPI(title="Restaurant order taker")
+SUPPORT_WORKER_SERVICE_GET_NEW_SESSION = "/deque_request"
 
-app.include_router(admin, tags=["admin"])
-app.include_router(guest, tags=["guest"])
+app = FastAPI(title="Support worker")
 
+svc = SupportWorkerService()
+
+@app.get("", tags=["support worker page"])
+async def root():
+    return "Support"
+
+
+
+@app.get(SUPPORT_WORKER_SERVICE_GET_NEW_SESSION)
+def controller_deque_session():
+    return svc.deque_session()
 
 @app.on_event("startup")
 async def startup_event():
@@ -19,8 +28,8 @@ async def startup_event():
         port=int(os.getenv("CONSUL_PORT", "8500")),
     )
 
-    service_name = "app"
-    service_port = int(os.getenv("APP_SERVICE_INTERNAL_PORT", "80"))
+    service_name = "worker"
+    service_port = int(os.getenv("WORKER_SERVICE_INTERNAL_PORT", "80"))
     service_id = f"{service_name}-{socket.gethostname()}"
 
     c.agent.service.register(
@@ -37,10 +46,8 @@ async def startup_event():
 
     logging.info(f"{service_name} service registered with Consul")
 
-@app.get("/", tags=["main page"])
-async def root():
-    return "Restaurant order taker"
-
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
