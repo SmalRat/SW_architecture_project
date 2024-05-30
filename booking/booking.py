@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from pymongo import MongoClient, timeout
+from pymongo import MongoClient, errors
 from pymongo.errors import PyMongoError
+from pydantic import BaseModel
 import logging
 import consul
 import os
@@ -15,6 +15,7 @@ client = MongoClient("mongodb://mongo1:27017/?directConnection=true&appName=mong
 db = client["restaurant_booking"]
 bookings_collection = db["bookings"]
 
+mongo_avail = True
 
 # Models
 class Booking(BaseModel):
@@ -35,7 +36,6 @@ tables = [
     {"_id": 4, "number_of_seats": 6},
 ]
 
-
 # Routes
 @app.post("/create_booking/")
 async def create_booking(booking: Booking):
@@ -45,14 +45,8 @@ async def create_booking(booking: Booking):
                 {"table_number": booking.table_number, "booking_time": booking.booking_time}
             )
 
-            the_table = 0
-            table_exists = False
-            for table in tables:
-                if table["_id"] == booking.table_number:
-                    table_exists = True
-                    the_table = table
-
-            if existing_booking or not table_exists:
+            the_table = next((table for table in tables if table["_id"] == booking.table_number), None)
+            if existing_booking or not the_table:
                 raise HTTPException(
                     status_code=400, detail="Table is unavailable at the specified time"
                 )
@@ -62,10 +56,10 @@ async def create_booking(booking: Booking):
             result = bookings_collection.insert_one(booking_dict)
             return {"booking_id": str(result.inserted_id)}
     except:
+        mongo_avail = False
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
-
 
 @app.get("/bookings/{user_name}")
 async def get_user_bookings(user_name: str):
@@ -78,10 +72,10 @@ async def get_user_bookings(user_name: str):
                 user_bookings.append(booking)
             return user_bookings
     except:
+        mongo_avail = False
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
-
 
 @app.get("/bookings/")
 async def get_all_bookings():
@@ -94,15 +88,14 @@ async def get_all_bookings():
                 user_bookings.append(booking)
             return user_bookings
     except:
+        mongo_avail = False
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
 
-
 @app.get("/tables/")
 async def get_all_tables():
     return tables
-
 
 @app.get("/tables/{table}")
 async def get_table(table: int):
@@ -115,10 +108,20 @@ async def get_table(table: int):
                 result.append(booking)
             return result
     except:
+        mongo_avail = False
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
 
+@app.get("/health")
+def health_check():
+    try:
+        client.server_info()
+        return {"status": "OK"}
+    except errors.ServerSelectionTimeoutError:
+        raise HTTPException(
+            status_code=503, detail="MongoDB not available"
+        )
 
 @app.on_event("startup")
 async def startup_event():
@@ -145,12 +148,7 @@ async def startup_event():
 
     logging.info(f"{service_name} service registered with Consul")
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
-
-
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8080)
+
