@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from pymongo import MongoClient
+from pymongo import MongoClient, timeout, PyMongoError
 import logging
 import consul
 import os
@@ -38,46 +38,64 @@ tables = [
 # Routes
 @app.post("/create_booking/")
 async def create_booking(booking: Booking):
-    existing_booking = bookings_collection.find_one(
-        {"table_number": booking.table_number, "booking_time": booking.booking_time}
-    )
+    try:
+        with timeout(5):
+            existing_booking = bookings_collection.find_one(
+                {"table_number": booking.table_number, "booking_time": booking.booking_time}
+            )
 
-    the_table = 0
-    table_exists = False
-    for table in tables:
-        if table["_id"] == booking.table_number:
-            table_exists = True
-            the_table = table
+            the_table = 0
+            table_exists = False
+            for table in tables:
+                if table["_id"] == booking.table_number:
+                    table_exists = True
+                    the_table = table
 
-    if existing_booking or not table_exists:
+            if existing_booking or not table_exists:
+                raise HTTPException(
+                    status_code=400, detail="Table is unavailable at the specified time"
+                )
+
+            booking_dict = booking.dict()
+            booking_dict["number_of_guests"] = the_table["number_of_seats"]
+            result = bookings_collection.insert_one(booking_dict)
+            return {"booking_id": str(result.inserted_id)}
+    except PyMongoError as exc:
         raise HTTPException(
-            status_code=400, detail="Table is unavailable at the specified time"
+            status_code=408, detail="MongoDB timeout"
         )
-
-    booking_dict = booking.dict()
-    booking_dict["number_of_guests"] = the_table["number_of_seats"]
-    result = bookings_collection.insert_one(booking_dict)
-    return {"booking_id": str(result.inserted_id)}
 
 
 @app.get("/bookings/{user_name}")
 async def get_user_bookings(user_name: str):
-    bookings = bookings_collection.find({"user_name": user_name})
-    user_bookings = []
-    for booking in bookings:
-        booking.pop("_id", None)
-        user_bookings.append(booking)
-    return user_bookings
+    try:
+        with timeout(5):
+            bookings = bookings_collection.find({"user_name": user_name})
+            user_bookings = []
+            for booking in bookings:
+                booking.pop("_id", None)
+                user_bookings.append(booking)
+            return user_bookings
+    except PyMongoError as exc:
+        raise HTTPException(
+            status_code=408, detail="MongoDB timeout"
+        )
 
 
 @app.get("/bookings/")
 async def get_all_bookings():
-    bookings = bookings_collection.find()
-    user_bookings = []
-    for booking in bookings:
-        booking.pop("_id", None)
-        user_bookings.append(booking)
-    return user_bookings
+    try:
+        with timeout(5):
+            bookings = bookings_collection.find()
+            user_bookings = []
+            for booking in bookings:
+                booking.pop("_id", None)
+                user_bookings.append(booking)
+            return user_bookings
+    except PyMongoError as exc:
+        raise HTTPException(
+            status_code=408, detail="MongoDB timeout"
+        )
 
 
 @app.get("/tables/")
@@ -87,12 +105,18 @@ async def get_all_tables():
 
 @app.get("/tables/{table}")
 async def get_table(table: int):
-    existing_bookings = bookings_collection.find({"table_number": table})
-    result = []
-    for booking in existing_bookings:
-        booking.pop("_id", None)
-        result.append(booking)
-    return result
+    try:
+        with timeout(5):
+            existing_bookings = bookings_collection.find({"table_number": table})
+            result = []
+            for booking in existing_bookings:
+                booking.pop("_id", None)
+                result.append(booking)
+            return result
+    except PyMongoError as exc:
+        raise HTTPException(
+            status_code=408, detail="MongoDB timeout"
+        )
 
 
 @app.on_event("startup")
