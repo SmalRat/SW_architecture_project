@@ -61,7 +61,7 @@ async def create_booking(booking: Booking):
             booking_dict["number_of_guests"] = the_table["number_of_seats"]
             result = bookings_collection.insert_one(booking_dict)
             return {"booking_id": str(result.inserted_id)}
-    except PyMongoError as exc:
+    except:
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
@@ -77,7 +77,7 @@ async def get_user_bookings(user_name: str):
                 booking.pop("_id", None)
                 user_bookings.append(booking)
             return user_bookings
-    except PyMongoError as exc:
+    except:
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
@@ -93,7 +93,7 @@ async def get_all_bookings():
                 booking.pop("_id", None)
                 user_bookings.append(booking)
             return user_bookings
-    except PyMongoError as exc:
+    except:
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
@@ -114,7 +114,7 @@ async def get_table(table: int):
                 booking.pop("_id", None)
                 result.append(booking)
             return result
-    except PyMongoError as exc:
+    except:
         raise HTTPException(
             status_code=408, detail="MongoDB timeout"
         )
