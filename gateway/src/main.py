@@ -1,56 +1,18 @@
 from fastapi import FastAPI, HTTPException
-import httpx
-import consul
-import random
-import os
+import logging
+from gateway.src.routers.app import app_admin, app_user
+from gateway.src.routers.support import support
+from gateway.src.routers.worker import worker
+from gateway.src.routers.booking import booking
 
-app = FastAPI()
-c = consul.Consul(
-    host=os.getenv("CONSUL_HOST", "consul"),
-    port=int(os.getenv("CONSUL_PORT", "8500")),
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def get_service_url(service_name: str) -> str:
-    index, services = c.health.service(service_name, passing=True)
-    # print(services)
-    if not services:
-        raise HTTPException(status_code=404, detail=f"Service {service_name} not found")
-    random_service = random.choice(services)
-    # print(random_service)
-    return f"http://{random_service['ServiceAddress']}:{random_service['ServicePort']}"
+gateway_router = FastAPI()
 
-@app.post("/deque_request")
-async def deque_request():
-    url = get_service_url("support-worker-service") + "/deque_request"
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url)
-        return response.json()
-
-@app.post("/create_session")
-async def create_session():
-    url = get_service_url("support-service") + "/create_session"
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url)
-        return response.json()
-
-@app.post("/put_message_user")
-async def put_message_user():
-    url = get_service_url("support-service") + "/put_message_user"
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url)
-        return response.json()
-
-@app.post("/put_message_admin")
-async def put_message_admin():
-    url = get_service_url("support-service") + "/put_message_admin"
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url)
-        return response.json()
-
-@app.get("/get_session")
-async def get_session():
-    url = get_service_url("support-service") + "/get_session"
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        return response.json()
+gateway_router.include_router(app_admin, tags=["app"])
+gateway_router.include_router(app_user, tags=["app"])
+gateway_router.include_router(support, tags=["support"])
+gateway_router.include_router(worker, tags=["worker"])
+gateway_router.include_router(booking, tags=["booking"])
